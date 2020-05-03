@@ -1,0 +1,17 @@
+body{
+	background-color: #1D272E;
+}
+
+#screen{
+	width: 720px;
+	height: 540px;
+	
+	position: relative;
+	left: 50%;
+	
+	transform: translateX(-360px);
+	
+	border: 1px #2D373E solid;
+	
+	cursor: none;
+}
