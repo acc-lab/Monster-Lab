@@ -43,6 +43,7 @@ function move(deg){
 function mainloop(){
 	if(Object.keys(store).length==4){
 		context.clearRect(0,0,720,540);
+	
 		
 		context.drawImage(store['cursor'], cursor_x-7, cursor_y-7, 14, 14);
 		
@@ -76,6 +77,9 @@ function mainloop(){
 			move(180);
 		}else if(isPressed('d') || isPressed('right')){
 			move(0);
+		}else{
+			cst="idle";
+			tick=0;
 		}
 		
 		face=((((Math.atan2(cursor_y-y, cursor_x-x))*(180/Math.PI)+90)%360+360)%360<=180)?1:-1;
