@@ -19,70 +19,116 @@ loadImage('cursor');
 loadImage('idle');
 loadImage('walk1');
 loadImage('walk2');
+loadImage('gun');
 
-var tick=0;
-var cst='idle';
-var x=50;
-var y=50;
+class Player{
+	constructor(){
+		this.tick=0;
+		this.cst='idle';
+		this.x=50;
+		this.y=50;
 
-var speed=5;
+		this.speed=5;
 
-var face=1;
-
-function move(deg){
-	tick+=1;
-	if(tick==2)cst='walk1';
-	if(tick==4)cst='walk2';
-	if(tick==6)cst='walk1';
-	if(tick==8){cst='idle'; tick=0;}
+		this.face=1;
+	}
 	
-	x+=speed*Math.cos(deg*(Math.PI/180));
-	y-=speed*Math.sin(deg*(Math.PI/180));
-}
-
-function mainloop(){
-	if(Object.keys(store).length==4){
-		context.clearRect(0,0,720,540);
+	move(deg){
+		this.tick+=1;
+		if(this.tick==2)this.cst='walk1';
+		if(this.tick==4)this.cst='walk2';
+		if(this.tick==6)this.cst='walk1';
+		if(this.tick==8){this.cst='idle'; this.tick=0;}
+		
+		this.x+=this.speed*Math.cos(deg*(Math.PI/180));
+		this.y-=this.speed*Math.sin(deg*(Math.PI/180));
+	}
 	
-		
-		context.drawImage(store['cursor'], cursor_x-7, cursor_y-7, 14, 14);
-		
-		if(face==1){
-			context.drawImage(store[cst], Math.floor(x), Math.floor(y), store[cst].width, store[cst].height);
-		}else{
-			context.save();
-			context.translate(Math.floor(x)*2+25, 0);
-			context.scale(-1,1);
-			context.drawImage(store[cst], Math.floor(x), Math.floor(y));
-			context.restore();
-		}
-		
+	update(){
 		if(isPressed('w') || isPressed('up')){
 			if(isPressed('a') || isPressed('left')){
-				move(135);
+				this.move(135);
 			}else if(isPressed('d') || isPressed('right')){
-				move(45);
+				this.move(45);
 			}else{
-				move(90);
+				this.move(90);
 			}
 		}else if(isPressed('s') || isPressed('down')){
 			if(isPressed('a') || isPressed('left')){
-				move(225);
+				this.move(225);
 			}else if(isPressed('d') || isPressed('right')){
-				move(315);
+				this.move(315);
 			}else{
-				move(270);
+				this.move(270);
 			}
 		}else if(isPressed('a') || isPressed('left')){
-			move(180);
+			this.move(180);
 		}else if(isPressed('d') || isPressed('right')){
-			move(0);
+			this.move(0);
 		}else{
-			cst="idle";
-			tick=0;
+			this.cst="idle";
+			this.tick=0;
+		}
+	}
+		
+	draw(){
+		let face=((((Math.atan2(cursor_y-this.y, cursor_x-this.x))*(180/Math.PI)+90)%360+360)%360<=180)?1:-1;
+		
+		if(face==1){
+			context.drawImage(store[this.cst], Math.floor(this.x)-14, Math.floor(this.y)-17, store[this.cst].width, store[this.cst].height);
+		}else{
+			context.save();
+			context.translate(Math.floor(this.x)*2, 0);
+			context.scale(-1,1);
+			context.drawImage(store[this.cst], Math.floor(this.x)-14, Math.floor(this.y)-17);
+			context.restore();
+		}
+	}
+}
+
+var player = new Player();
+
+function mainloop(){
+	if(Object.keys(store).length==5){
+		context.clearRect(0,0,720,540);
+		
+		player.update();
+		player.draw();
+		
+		x = player.x+0;
+		y = player.y+0;
+		
+		direction = (((Math.atan2(cursor_y-y, cursor_x-x))*(180/Math.PI))%360+360)%360;
+		
+		context.save();
+		
+		/*
+		context.beginPath();
+		context.moveTo(100,100);
+		context.lineTo(110,110);
+		context.lineWidth=1;
+		context.strokeStyle="grey";
+		context.stroke();
+		*/
+		
+		if(direction<90 || direction>270){
+			context.translate(x,y);
+			context.rotate(direction*(Math.PI/180));
+			context.drawImage(store['gun'], 15, 0, 19, 10);
+			context.translate(0,0);
+		}else{
+			context.translate(x,y);
+			context.rotate((180+direction)*(Math.PI/180));
+			
+			context.scale(-1, 1);
+			context.drawImage(store['gun'], 15, 0, 19, 10);
+			
+			context.translate(0,0);
 		}
 		
-		face=((((Math.atan2(cursor_y-y, cursor_x-x))*(180/Math.PI)+90)%360+360)%360<=180)?1:-1;
+		context.restore();
+		
+		context.drawImage(store['cursor'], cursor_x-7, cursor_y-7, 15, 15);
 	}	
 }
 
@@ -114,8 +160,8 @@ var cursor_y;
 var cursor_click=false;
 
 document.onmousemove=function(e) {
-	cursor_x = event.clientX - canvas.offsetLeft + 360;
-	cursor_y = event.clientY - canvas.offsetTop;
+	cursor_x = (event.clientX - canvas.offsetLeft+198)/0.55;
+	cursor_y = (event.clientY - canvas.offsetTop)/0.55;
 }
 
 canvas.addEventListener('mousedown',function(){

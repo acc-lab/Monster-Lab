@@ -3,13 +3,13 @@ body{
 }
 
 #screen{
-	width: 720px;
-	height: 540px;
+	width: 396px;
+	height: 297px;
 	
 	position: relative;
 	left: 50%;
 	
-	transform: translateX(-360px);
+	transform: translateX(-198px);
 	
 	border: 1px #2D373E solid;
 	
