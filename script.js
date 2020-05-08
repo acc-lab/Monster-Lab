@@ -117,11 +117,11 @@ class Bullet{
 		context.save();
 		
 		context.beginPath();
+		
+		context.globalAlpha=(this.range>400)?1:((this.range<=300)?((this.range<=50)?this.range/100:0.5):(this.range-150)/300);
+		
 		context.strokeStyle=this.color;
-		
 		context.lineWidth=1;
-		
-		context.globalAlpha=(this.range>400)?1:((this.range<=300)?((this.range<=100)?this.range/400:0.25):(this.range-150)/300);
 		
 		context.moveTo(this.last_x, this.last_y);
 		context.lineTo(this.x, this.y);
@@ -133,7 +133,7 @@ class Bullet{
 
 bullets=[]
 
-function new_bullet(x, y, deg, speed, range=500, color="#ffffff"){
+function new_bullet(x, y, deg, speed, range=500, color="#eb1000"){
 	let bullet = new Bullet(x, y, deg, speed, range, color);
 	
 	bullets.push(bullet);
@@ -187,7 +187,7 @@ function mainloop(){
 		
 		context.restore();
 		
-		context.drawImage(store['cursor'], cursor_x-7, cursor_y-7, 15, 15);
+		context.drawImage(store['cursor'], Math.floor(cursor_x)-7, Math.floor(cursor_y)-7, 15, 15);
 	}	
 }
 
