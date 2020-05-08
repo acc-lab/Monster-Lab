@@ -88,6 +88,57 @@ class Player{
 
 var player = new Player();
 
+class Bullet{
+	constructor(x, y, deg, speed, range, color){
+		this.x = x;
+		this.y = y;
+		
+		this.last_x=x;
+		this.last_y=y;
+		
+		this.deg = deg;
+		this.speed = speed;
+		this.color = color;
+		
+		this.range=range;
+	}
+	update(){
+		this.last_x=this.x;
+		this.last_y=this.y;
+		
+		this.x+=this.speed*Math.cos(this.deg*(Math.PI/180));
+		this.y-=this.speed*Math.sin(this.deg*(Math.PI/180));
+		
+		this.range-=this.speed;
+		
+		return !(this.range>0);
+	}
+	draw(){
+		context.save();
+		
+		context.beginPath();
+		context.strokeStyle=this.color;
+		
+		context.lineWidth=1;
+		
+		context.globalAlpha=(this.range>400)?1:((this.range<=300)?((this.range<=100)?this.range/400:0.25):(this.range-150)/300);
+		
+		context.moveTo(this.last_x, this.last_y);
+		context.lineTo(this.x, this.y);
+		context.stroke();
+		
+		context.restore();
+	}
+}
+
+bullets=[]
+
+function new_bullet(x, y, deg, speed, range=500, color="#ffffff"){
+	let bullet = new Bullet(x, y, deg, speed, range, color);
+	
+	bullets.push(bullet);
+}
+
 function mainloop(){
 	if(Object.keys(store).length==5){
 		context.clearRect(0,0,720,540);
@@ -98,27 +149,35 @@ function mainloop(){
 		x = player.x+0;
 		y = player.y+0;
 		
-		direction = (((Math.atan2(cursor_y-y, cursor_x-x))*(180/Math.PI))%360+360)%360;
+		direction = (((Math.atan2(y-cursor_y, cursor_x-x))*(180/Math.PI))%360+360)%360;
 		
 		context.save();
 		
-		/*
-		context.beginPath();
-		context.moveTo(100,100);
-		context.lineTo(110,110);
-		context.lineWidth=1;
-		context.strokeStyle="grey";
-		context.stroke();
-		*/
+		for(i=0;i<bullets.length;i++){
+			let bullet = bullets[i];
+			
+			if(bullet.update()){
+				bullets.splice(i,1);
+				i--;
+			}else{
+				bullet.draw();
+			}
+		}
+		
+		if(cursor_click){
+			new_bullet(x+35*Math.cos(direction*(Math.PI/180)), y-35*Math.sin(direction*(Math.PI/180))+2, direction, 20);
+			
+			cursor_click=false;
+		}		
 		
 		if(direction<90 || direction>270){
 			context.translate(x,y);
-			context.rotate(direction*(Math.PI/180));
+			context.rotate((360-direction)*(Math.PI/180));
 			context.drawImage(store['gun'], 15, 0, 19, 10);
 			context.translate(0,0);
 		}else{
 			context.translate(x,y);
-			context.rotate((180+direction)*(Math.PI/180));
+			context.rotate((180-direction)*(Math.PI/180));
 			
 			context.scale(-1, 1);
 			context.drawImage(store['gun'], 15, 0, 19, 10);
@@ -160,8 +219,8 @@ var cursor_y;
 var cursor_click=false;
 
 document.onmousemove=function(e) {
-	cursor_x = (event.clientX - canvas.offsetLeft+198)/0.55;
-	cursor_y = (event.clientY - canvas.offsetTop)/0.55;
+	cursor_x = (event.clientX - canvas.offsetLeft+240)*1.5;
+	cursor_y = (event.clientY - canvas.offsetTop)*1.5;
 }
 
 canvas.addEventListener('mousedown',function(){
